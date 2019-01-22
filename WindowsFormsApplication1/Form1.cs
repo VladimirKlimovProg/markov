@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace WindowsFormsApplication1
@@ -38,15 +39,8 @@ namespace WindowsFormsApplication1
         private void button1_Click(object sender, EventArgs e)
         {
           
-            //string[] rules = new[] { "*a->a*", "*b->b*", "*->.b", "Л->*" };
             string[] rules = textBoxRules.Lines;
             string word = textBoxWord.Text;
-
-            //подсветка
-            //textBoxRules.Focus();
-            //int startIndex = 0;
-            //int lengthOfLine = textBoxRules.Lines[0].Length;
-            //textBoxRules.Select(startIndex,lengthOfLine);
 
             //проверить правильность ввода правил
             bool validation = validateRules(rules);
@@ -56,6 +50,7 @@ namespace WindowsFormsApplication1
                 return;
             }
 
+            textBoxRules.Focus();
             Console.WriteLine(word);
             bool ruleApplied = false;
             bool lastRule = false;
@@ -63,7 +58,9 @@ namespace WindowsFormsApplication1
             do
             {
                 ruleApplied = false;
-                //пошаговое выполнение, подсветка
+                int startIndex = 0;
+                int indexRules = 0;
+                int lengthOfLine = textBoxRules.Lines[indexRules].Length;
 
                 foreach (string rule in rules)
                 {
@@ -74,28 +71,34 @@ namespace WindowsFormsApplication1
                     string R = ruleParts[1];
 
                     lastRule = rule.Contains("->.");
+                    
 
                     if (L == "Л")
                     {
                         word = R + word;
                         ruleApplied = true;
-                        Console.WriteLine($"{word} ({rule})");
+                        textBoxRules.Select(startIndex, lengthOfLine);
+                        Thread.Sleep(1500);
+                        textBoxWord.Text = word;
+                        textBoxWord.Refresh();
                         break;
                     }
                     else if (word.Contains(L))
                     {
                         Regex search = new Regex(Regex.Escape(L));
                         word = search.Replace(word, R, 1, 0);
-                        Console.WriteLine($"{word} ({rule})");
-
                         ruleApplied = true;
+                        textBoxRules.Select(startIndex, lengthOfLine);
+                        Thread.Sleep(1500);
+                        textBoxWord.Text = word;
+                        textBoxWord.Refresh();
                         break;
                     }
+                    indexRules++;
+                    lengthOfLine = textBoxRules.Lines[indexRules].Length + 2; //с учетом спецсимволов \r и \n
+                    startIndex = startIndex + lengthOfLine;
                 }
-
             } while (ruleApplied && !lastRule);
-
-            textBoxWord.Text = word;
         }
 
         private void Form1_Load(object sender, EventArgs e)
