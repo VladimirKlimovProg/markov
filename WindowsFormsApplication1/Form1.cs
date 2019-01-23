@@ -83,20 +83,29 @@ namespace WindowsFormsApplication1
                         textBoxWord.Refresh();
                         break;
                     }
+                    
                     else if (word.Contains(L))
                     {
                         Regex search = new Regex(Regex.Escape(L));
-                        word = search.Replace(word, R, 1, 0);
+                        if (R == "Л")
+                        {
+                            word = search.Replace(word, "", 1, 0);
+                        }
+                        else
+                        {
+                            word = search.Replace(word, R, 1, 0);
+                        }
                         ruleApplied = true;
                         textBoxRules.Select(startIndex, lengthOfLine);
                         Thread.Sleep(1500);
                         textBoxWord.Text = word;
                         textBoxWord.Refresh();
                         break;
-                    }
+                    }                 
+                    startIndex = startIndex + lengthOfLine;
                     indexRules++;
                     lengthOfLine = textBoxRules.Lines[indexRules].Length + 2; //с учетом спецсимволов \r и \n
-                    startIndex = startIndex + lengthOfLine;
+                    
                 }
             } while (ruleApplied && !lastRule);
         }
